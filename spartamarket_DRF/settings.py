@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # Third-party
     "django_seed",
     'rest_framework',
+    'rest_framework.authtoken',
     # Local
     "articles",
     "products",
