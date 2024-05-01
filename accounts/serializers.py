@@ -1,9 +1,23 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from .models import Accounts
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 
 class UserSerializer(serializers.ModelSerializer):
+
+    def validate_password(self, value):
+        # 비밀번호 유효성 검사
+        validate_password(value)
+        # 비밀번호 해싱
+        return make_password(value)
+
+    def validate_birth_date(self, value):
+        if value is None:
+            raise ValidationError("Birth date cannot be null.")
+        return value
+
     class Meta:
         model = Accounts
         fields = ['username', 'email', 'name', 'nickname',

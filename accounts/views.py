@@ -11,6 +11,15 @@ from django.contrib.auth import authenticate
 User = get_user_model()
 
 
+@api_view(["POST"])
+def accounts_signup(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(["GET"])
 def accounts_signup(self, email, nickname, name, password=None):
     if not email:
@@ -29,16 +38,6 @@ def accounts_signup(self, email, nickname, name, password=None):
     return user
 
 
-@api_view(["POST"])
-def accounts_signup(request):
-    if request.method == 'POST':
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 @api_view(['POST'])
 def accounts_login(request):
     username = request.data.get('username')
@@ -54,15 +53,12 @@ def accounts_login(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def accounts_detail(request, username):
-    try:
-        user = User.objects.get(username=username)
-        if user == request.user:
-            serializer = UserSerializer(user)
-            return Response(serializer.data)
-        else:
-            return Response({'error': 'You do not have permission to view this profile.'}, status=status.HTTP_403_FORBIDDEN)
-    except User.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    user = User.objects.get(username=username)
+    if user == request.user:
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+    else:
+        return Response({'error': 'You do not have permission to view this profile.'}, status=status.HTTP_403_FORBIDDEN)
 
 
 def accounts_refresh_token():

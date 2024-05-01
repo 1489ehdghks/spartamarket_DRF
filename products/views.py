@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, render
 from products.models import Products
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from .serializers import ProductSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -15,7 +15,7 @@ def json_drf(request):
 
 
 @api_view(["GET", "POST"])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def product_list(request):
     if request.method == "GET":
         products = Products.objects.all()
