@@ -1,15 +1,26 @@
+from requests import Response
 from rest_framework import serializers
-from django.contrib.auth.hashers import make_password
 from .models import Accounts
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
 
 class UserSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = Accounts
+        fields = ['username', 'email', 'name', 'nickname',
+                  'birth_date', 'gender', 'features', 'password']
+
+        # 비밀번호 표시x
+        extra_kwargs = {'password': {'write_only': True}}
+
     def validate_password(self, value):
+
         # 비밀번호 유효성 검사
         validate_password(value)
+
         # 비밀번호 해싱
         return make_password(value)
 
@@ -17,12 +28,6 @@ class UserSerializer(serializers.ModelSerializer):
         if value is None:
             raise ValidationError("Birth date cannot be null.")
         return value
-
-    class Meta:
-        model = Accounts
-        fields = ['username', 'email', 'name', 'nickname',
-                  'birth_date', 'gender', 'features', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         user = Accounts.objects.create(
@@ -37,3 +42,4 @@ class UserSerializer(serializers.ModelSerializer):
         )
         user.save()
         return user
+

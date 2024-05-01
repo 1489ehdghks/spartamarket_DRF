@@ -3,10 +3,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth import get_user_model
+from accounts.models import Accounts
 from .serializers import UserSerializer
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
+
 
 User = get_user_model()
 
@@ -47,19 +49,32 @@ def accounts_login(request):
         token, created = Token.objects.get_or_create(user=user)
         return Response({'token': token.key}, status=status.HTTP_200_OK)
     else:
-        return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': '리퀘'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def accounts_detail(request, username):
-    user = User.objects.get(username=username)
+    user = get_object_or_404(User, username=username)
     if user == request.user:
         serializer = UserSerializer(user)
         return Response(serializer.data)
     else:
-        return Response({'error': 'You do not have permission to view this profile.'}, status=status.HTTP_403_FORBIDDEN)
+        return Response({'error': '뭔가가 없는거 같애.'}, status=status.HTTP_403_FORBIDDEN)
 
 
-def accounts_refresh_token():
-    pass
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def accounts_detail(self, request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        email = serializer.validated_data['email']
+        if email and Accounts.objects.object.filter(email=email).exist():
+            return Response({'message': '이메일 중복'}, status=400)
+        user = serializer.save()
+        password = serializer.validated_data['password']
+        user.set_password(password)
+        user.save()
+        return Response({'message': '비밀번호 수정성공', 'userId': user.id}, status=201)
+    else:
+        return Response(serializer.errors, status=400)
