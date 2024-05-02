@@ -41,6 +41,11 @@ def accounts_login(request):
         return Response({'error': '11111111'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+def accounts_logout():
+    # 리프래쉬 토큰 블랙리스트에 넣어주고 나머진 프론트엔드에게 맡기자
+    pass
+
+
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def accounts_detail(request, username):

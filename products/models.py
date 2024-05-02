@@ -7,7 +7,7 @@ class Products(models.Model):
     content = models.TextField()
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
-    image = models.ImageField(upload_to='image/', blank=True)
+    image = models.ImageField(upload_to='image/', blank=True, null=True)
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
